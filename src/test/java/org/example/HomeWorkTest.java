@@ -1,50 +1,66 @@
 package org.example;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HomeWorkTest {
 
-    HomeWork homeWork = new HomeWork();
+    private MorseTranslator translator;
 
-    @Test
-    void managerFabric() {
+    @BeforeEach
+    public void setUp() {
+        translator = new HomeWork();
     }
 
     @Test
-    void check() {
-        List<Integer> expectedQueue = generateQueue(1, 4);
-        List<String> pairs = generatePairs(expectedQueue);
-        assertEquals(expectedQueue, homeWork.check(pairs));
+    public void testEncodeSingleWord() {
+        String input = "SOS";
+        String expectedOutput = "... --- ...";
+        assertEquals(expectedOutput, translator.encode(input));
     }
 
-    private List<String> generatePairs(List<Integer> expectedQueue) {
-        List<String> pairs = new ArrayList<>();
-        Function<Integer, Integer> map = (x) -> (x < 0 || x >= expectedQueue.size()) ? 0 : expectedQueue.get(x);
-
-        for (int i = 0;
-             i < expectedQueue.size(); i++) {
-            pairs.add(String.format("%d:%d", map.apply(i - 1), map.apply(i + 1)));
-        }
-        Collections.shuffle(pairs);
-        return pairs;
+    @Test
+    public void testEncodeMultipleWords() {
+        String input = "HELLO WORLD";
+        String expectedOutput = ".... . .-.. .-.. --- / .-- --- .-. .-.. -..";
+        assertEquals(expectedOutput, translator.encode(input));
     }
 
-    private List<Integer> generateQueue(int seed, int length) {
-        return new Random(seed)
-                .ints(1, length * 100)
-                .limit(length)
-                .boxed()
-                .collect(Collectors.toList());
+    @Test
+    public void testDecodeSingleWord() {
+        String input = "... --- ...";
+        String expectedOutput = "SOS";
+        assertEquals(expectedOutput, translator.decode(input));
     }
 
+    @Test
+    public void testDecodeMultipleWords() {
+        String input = ".... . .-.. .-.. --- / .-- --- .-. .-.. -..";
+        String expectedOutput = "HELLO WORLD";
+        assertEquals(expectedOutput, translator.decode(input));
+    }
 
+    @Test
+    public void testEncodeAndDecode() {
+        String originalText = "TESTING MORSE CODE";
+        String encoded = translator.encode(originalText);
+        String decoded = translator.decode(encoded);
+        assertEquals(originalText, decoded);
+    }
+
+    @Test
+    public void testEncodeEmptyString() {
+        String input = "";
+        String expectedOutput = "";
+        assertEquals(expectedOutput, translator.encode(input));
+    }
+
+    @Test
+    public void testDecodeEmptyString() {
+        String input = "";
+        String expectedOutput = "";
+        assertEquals(expectedOutput, translator.decode(input));
+    }
 }
